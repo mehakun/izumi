@@ -5,8 +5,7 @@ import java.util.concurrent.atomic.AtomicReference
 import distage.Id
 import izumi.distage.LocatorDefaultImpl
 import izumi.distage.model.{Locator, LocatorMeta}
-import izumi.distage.model.definition.DIResource
-import izumi.distage.model.definition.DIResource.DIResourceBase
+import izumi.distage.model.definition.Lifecycle
 import izumi.distage.model.exceptions.IncompatibleEffectTypesException
 import izumi.distage.model.effect.DIEffect
 import izumi.distage.model.effect.DIEffect.syntax._
@@ -47,8 +46,8 @@ class PlanInterpreterDefaultRuntimeImpl(
     parentContext: Locator,
     filterFinalizers: FinalizerFilter[F],
   )(implicit F: DIEffect[F]
-  ): DIResourceBase[F, Either[FailedProvision[F], Locator]] = {
-    DIResource.make(
+  ): Lifecycle[F, Either[FailedProvision[F], Locator]] = {
+    Lifecycle.make(
       acquire = instantiateImpl(plan, parentContext)
     )(release = {
       resource =>

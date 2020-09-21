@@ -2,7 +2,7 @@ package izumi.distage.impl
 
 import java.io.ByteArrayInputStream
 
-import distage.DIResource
+import distage.Lifecycle
 import izumi.distage.model.definition.ModuleDef
 import izumi.distage.model.effect.{DIEffect, LowPriorityDIEffectInstances}
 import izumi.functional.bio.{BIO, BIO3, BIOApplicative, BIOApplicativeError, BIOApplicativeError3, BIOArrow, BIOArrowChoice, BIOAsk, BIOAsync, BIOBifunctor, BIOBracket, BIOError, BIOFork, BIOFunctor, BIOGuarantee, BIOLocal, BIOMonad, BIOMonadAsk, BIOPanic, BIOParallel, BIOPrimitives, BIOProfunctor, BIORef3, BIOTemporal, BlockingIO, F}

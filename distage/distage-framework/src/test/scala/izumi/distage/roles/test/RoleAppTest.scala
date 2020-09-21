@@ -13,7 +13,7 @@ import izumi.distage.effect.modules.{CatsDIEffectModule, IdentityDIEffectModule}
 import izumi.distage.framework.config.PlanningOptions
 import izumi.distage.framework.services.{IntegrationChecker, RoleAppPlanner}
 import izumi.distage.model.PlannerInput
-import izumi.distage.model.definition.{Activation, BootstrapModule, DIResource}
+import izumi.distage.model.definition.{Activation, BootstrapModule, Lifecycle}
 import izumi.distage.plugins.PluginConfig
 import izumi.distage.roles.test.fixtures.Fixture._
 import izumi.distage.roles.test.fixtures._
@@ -194,7 +194,7 @@ class RoleAppTest extends AnyWordSpec with WithProperties {
       val definition = new ResourcesPluginBase {
         make[TestResource[IO]].fromResource {
           r: IntegrationResource1[IO] =>
-            DIResource.fromAutoCloseable(new IntegrationResource0(r, probe.resources))
+            Lifecycle.fromAutoCloseable(new IntegrationResource0(r, probe.resources))
         }
         many[TestResource[IO]]
           .ref[TestResource[IO]]

@@ -1,7 +1,6 @@
 package izumi.distage.model
 
-import izumi.distage.model.definition.DIResource.DIResourceBase
-import izumi.distage.model.definition.{Activation, Identifier, ModuleBase}
+import izumi.distage.model.definition.{Activation, Identifier, Lifecycle, ModuleBase}
 import izumi.distage.model.effect.DIEffect
 import izumi.distage.model.plan.Roots
 import izumi.distage.model.providers.Functoid
@@ -61,7 +60,7 @@ trait Injector extends Planner with Producer {
   }
 
   /**
-    * Create an effectful [[izumi.distage.model.definition.DIResource]] value that encapsulates the
+    * Create an effectful [[izumi.distage.model.definition.Lifecycle]] value that encapsulates the
     * allocation and cleanup of an object graph described by the `input` module,
     * designate all arguments of the provided function as roots of the graph and run the function.
     *
@@ -102,12 +101,12 @@ trait Injector extends Planner with Producer {
     bindings: ModuleBase,
     activation: Activation = Activation.empty,
   )(function: Functoid[F[A]]
-  ): DIResourceBase[F, A] = {
+  ): Lifecycle[F, A] = {
     produceF[F](plan(PlannerInput(bindings, activation, function.get.diKeys.toSet))).evalMap(_.run(function))
   }
 
   /**
-    * Create an effectful [[izumi.distage.model.definition.DIResource]] value that encapsulates the
+    * Create an effectful [[izumi.distage.model.definition.Lifecycle]] value that encapsulates the
     * allocation and cleanup of an object graph described by the `input` module,
     * designate `A` as the root of the graph and retrieve `A` from the result.
     *
@@ -134,20 +133,20 @@ trait Injector extends Planner with Producer {
     * @param bindings   Bindings created by [[izumi.distage.model.definition.ModuleDef]] DSL
     * @param activation A map of axes of configuration to choices along these axes
     */
-  final def produceGetF[F[_]: TagK: DIEffect, A: Tag](bindings: ModuleBase, activation: Activation): DIResourceBase[F, A] = {
+  final def produceGetF[F[_]: TagK: DIEffect, A: Tag](bindings: ModuleBase, activation: Activation): Lifecycle[F, A] = {
     produceF[F](plan(PlannerInput(bindings, activation, DIKey.get[A]))).map(_.get[A])
   }
 
-  final def produceGetF[F[_]: TagK: DIEffect, A: Tag](bindings: ModuleBase): DIResourceBase[F, A] = {
+  final def produceGetF[F[_]: TagK: DIEffect, A: Tag](bindings: ModuleBase): Lifecycle[F, A] = {
     produceGetF[F, A](bindings, Activation.empty)
   }
 
-  final def produceGetF[F[_]: TagK: DIEffect, A: Tag](name: Identifier)(bindings: ModuleBase, activation: Activation = Activation.empty): DIResourceBase[F, A] = {
+  final def produceGetF[F[_]: TagK: DIEffect, A: Tag](name: Identifier)(bindings: ModuleBase, activation: Activation = Activation.empty): Lifecycle[F, A] = {
     produceF[F](plan(PlannerInput(bindings, activation, DIKey.get[A].named(name)))).map(_.get[A](name))
   }
 
   /**
-    * Create an effectful [[izumi.distage.model.definition.DIResource]] value that encapsulates the
+    * Create an effectful [[izumi.distage.model.definition.Lifecycle]] value that encapsulates the
     * allocation and cleanup of an object graph described by `input`
     *
     * {{{
@@ -169,24 +168,24 @@ trait Injector extends Planner with Producer {
     *              designating all DIKeys as roots.
     * @return A Resource value that encapsulates allocation and cleanup of the object graph described by `input`
     */
-  final def produceF[F[_]: TagK: DIEffect](input: PlannerInput): DIResourceBase[F, Locator] = {
+  final def produceF[F[_]: TagK: DIEffect](input: PlannerInput): Lifecycle[F, Locator] = {
     produceF[F](plan(input))
   }
-  final def produceF[F[_]: TagK: DIEffect](bindings: ModuleBase, roots: Roots, activation: Activation = Activation.empty): DIResourceBase[F, Locator] = {
+  final def produceF[F[_]: TagK: DIEffect](bindings: ModuleBase, roots: Roots, activation: Activation = Activation.empty): Lifecycle[F, Locator] = {
     produceF[F](plan(PlannerInput(bindings, activation, roots)))
   }
 
   final def produceRun[A: Tag](bindings: ModuleBase, activation: Activation = Activation.empty)(function: Functoid[A]): A =
     produceRunF[Identity, A](bindings, activation)(function)
-  final def produceEval[A: Tag](bindings: ModuleBase, activation: Activation = Activation.empty)(function: Functoid[A]): DIResourceBase[Identity, A] =
+  final def produceEval[A: Tag](bindings: ModuleBase, activation: Activation = Activation.empty)(function: Functoid[A]): Lifecycle[Identity, A] =
     produceEvalF[Identity, A](bindings, activation)(function)
 
-  final def produceGet[A: Tag](bindings: ModuleBase, activation: Activation = Activation.empty): DIResourceBase[Identity, A] =
+  final def produceGet[A: Tag](bindings: ModuleBase, activation: Activation = Activation.empty): Lifecycle[Identity, A] =
     produceGetF[Identity, A](bindings, activation)
-  final def produceGet[A: Tag](name: Identifier)(bindings: ModuleBase, activation: Activation): DIResourceBase[Identity, A] =
+  final def produceGet[A: Tag](name: Identifier)(bindings: ModuleBase, activation: Activation): Lifecycle[Identity, A] =
     produceGetF[Identity, A](name)(bindings, activation)
 
-  final def produce(input: PlannerInput): DIResourceBase[Identity, Locator] = produceF[Identity](input)
-  final def produce(bindings: ModuleBase, roots: Roots, activation: Activation = Activation.empty): DIResourceBase[Identity, Locator] =
+  final def produce(input: PlannerInput): Lifecycle[Identity, Locator] = produceF[Identity](input)
+  final def produce(bindings: ModuleBase, roots: Roots, activation: Activation = Activation.empty): Lifecycle[Identity, Locator] =
     produceF[Identity](bindings, roots, activation)
 }

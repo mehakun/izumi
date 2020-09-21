@@ -1,12 +1,13 @@
 package izumi.distage.roles
 
-import distage._
 import cats.effect._
-import izumi.functional.bio._
+import distage._
+import izumi.distage.model.definition.Lifecycle
 import izumi.distage.plugins.PluginConfig
 import izumi.distage.roles.RoleAppMain.{AdditionalRoles, ArgV}
 import izumi.distage.roles.launcher.AppShutdownStrategy._
 import izumi.distage.roles.launcher.{AppFailureHandler, AppShutdownStrategy, PreparedApp}
+import izumi.functional.bio._
 import izumi.fundamentals.platform.cli.model.raw.RawRoleParams
 import izumi.fundamentals.platform.cli.model.schema.ParserDef
 import izumi.fundamentals.platform.functional.Identity
@@ -25,7 +26,7 @@ abstract class RoleAppMain[F[_]: TagK](implicit artifact: IzArtifactMaterializer
       val appModule = makeAppModule(argv)
       val overrideModule = makeAppModuleOverride(argv)
       Injector.NoProxies().produceRun(appModule.overridenBy(overrideModule)) {
-        appResource: DIResourceBase[Identity, PreparedApp[F]] =>
+        appResource: Lifecycle[Identity, PreparedApp[F]] =>
           appResource.use(_.run())
       }
     } catch {

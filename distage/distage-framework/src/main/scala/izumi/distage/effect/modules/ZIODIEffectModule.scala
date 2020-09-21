@@ -3,7 +3,7 @@ package izumi.distage.effect.modules
 import java.util.concurrent.{Executors, ThreadPoolExecutor}
 
 import distage.Id
-import izumi.distage.model.definition.{DIResource, ModuleDef}
+import izumi.distage.model.definition.{Lifecycle, ModuleDef}
 import izumi.distage.model.effect._
 import izumi.functional.bio.BIORunner.{FailureHandler, ZIORunner}
 import izumi.functional.bio._
@@ -28,11 +28,11 @@ trait ZIODIEffectModule extends ModuleDef {
   make[ThreadPoolExecutor].named("zio.cpu").fromResource {
     () =>
       val coresOr2 = Runtime.getRuntime.availableProcessors() max 2
-      DIResource.fromExecutorService(Executors.newFixedThreadPool(coresOr2).asInstanceOf[ThreadPoolExecutor])
+      Lifecycle.fromExecutorService(Executors.newFixedThreadPool(coresOr2).asInstanceOf[ThreadPoolExecutor])
   }
   make[ThreadPoolExecutor].named("zio.io").fromResource {
     () =>
-      DIResource.fromExecutorService(Executors.newCachedThreadPool().asInstanceOf[ThreadPoolExecutor])
+      Lifecycle.fromExecutorService(Executors.newCachedThreadPool().asInstanceOf[ThreadPoolExecutor])
   }
 
   make[zio.blocking.Blocking.Service].from {
