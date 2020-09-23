@@ -13,6 +13,8 @@ object Izumi {
     val scalatest = Version.VExpr("V.scalatest")
     val cats = Version.VExpr("V.cats")
     val cats_effect = Version.VExpr("V.cats_effect")
+    val discipline = Version.VExpr("V.discipline")
+    val discipline_scalatest = Version.VExpr("V.discipline_scalatest")
     val zio = Version.VExpr("V.zio")
     val zio_interop_cats = Version.VExpr("V.zio_interop_cats")
     val monix_bio = Version.VExpr("V.monix_bio")
@@ -74,6 +76,7 @@ object Izumi {
       cats_core,
       cats_effect,
     )
+    final val cats_effect_laws = Library("org.typelevel", "cats-effect-laws", V.cats_effect, LibraryType.Auto) in Scope.Test.all
 
     final val circe_core = Library("io.circe", "circe-core", V.circe, LibraryType.Auto)
     final val circe_derivation = Library("io.circe", "circe-derivation", V.circe_derivation, LibraryType.Auto)
@@ -84,6 +87,10 @@ object Izumi {
       Library("io.circe", "circe-generic-extras", V.circe_generic_extras, LibraryType.Auto),
       circe_derivation,
     ).map(_ in Scope.Compile.all)
+
+    final val discipline = Library("org.typelevel", "discipline-core", V.discipline, LibraryType.Auto) in Scope.Test.all
+    final val discipline_scaltest = Library("org.typelevel", "discipline-scalatest", V.discipline_scalatest, LibraryType.Auto) in Scope.Test.all
+
     final val pureconfig_magnolia = Library("com.github.pureconfig", "pureconfig-magnolia", V.pureconfig, LibraryType.Auto)
     final val magnolia = Library("com.propensive", "magnolia", V.magnolia, LibraryType.Auto)
 
@@ -386,7 +393,7 @@ object Izumi {
       ),
       Artifact(
         name = Projects.fundamentals.bio,
-        libs = allMonadsOptional ++ Seq(
+        libs = allMonadsOptional ++ Seq(cats_effect_laws, scalatest, discipline, discipline_scaltest) ++ Seq(
           scala_java_time in Scope.Test.js
         ),
         depends = Seq(Projects.fundamentals.language),
