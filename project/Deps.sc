@@ -18,6 +18,7 @@ object Izumi {
     val zio = Version.VExpr("V.zio")
     val zio_interop_cats = Version.VExpr("V.zio_interop_cats")
     val monix_bio = Version.VExpr("V.monix_bio")
+    val monix_cats = Version.VExpr("V.monix_cats")
     val circe = Version.VExpr("V.circe")
     val circe_generic_extras = Version.VExpr("V.circe_generic_extras")
     val circe_derivation = Version.VExpr("V.circe_derivation")
@@ -393,8 +394,8 @@ object Izumi {
       ),
       Artifact(
         name = Projects.fundamentals.bio,
-        libs = allMonadsOptional ++ Seq(cats_effect_laws, scalatest, discipline, discipline_scaltest) ++ Seq(
-          scala_java_time in Scope.Test.js
+        libs = allMonadsOptional ++ Seq(cats_effect_laws, scalatest, discipline, discipline_scaltest) ++ Seq(scala_java_time in Scope.Test.js) ++ Seq(
+          zio_interop_cats in Scope.Test.all
         ),
         depends = Seq(Projects.fundamentals.language),
         platforms = Targets.cross,
