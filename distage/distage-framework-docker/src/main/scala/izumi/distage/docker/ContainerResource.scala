@@ -163,8 +163,8 @@ case class ContainerResource[F[_], T](
       waitFor = 200.millis,
       maxAttempts = config.pullTimeout.toSeconds.toInt * 5,
     ) {
-      for {
-        containers <- F.maybeSuspend {
+      F.suspendF {
+        val containers = {
           /**
             * We will filter out containers by "running" status if container exposes any ports to be mapped
             * and by "exited" status also if there are no exposed ports.
@@ -190,7 +190,7 @@ case class ContainerResource[F[_], T](
               throw new IntegrationCheckException(NonEmptyList(ResourceCheck.ResourceUnavailable(c.getMessage, Some(c))))
           }
         }
-        candidate = {
+        val candidate = {
           val portSet = ports.map(_.port).toSet
           val candidates = containers.flatMap {
             c =>
@@ -210,7 +210,9 @@ case class ContainerResource[F[_], T](
           }
           if (portSet.nonEmpty) {
             // here we are checking if all ports was successfully mapped
-            candidates.find { case (_, _, eports) => portSet.diff(eports.dockerPorts.keySet).isEmpty }
+            candidates.find {
+              case (_, _, eports) => portSet.diff(eports.dockerPorts.keySet).isEmpty
+            }
           } else {
             // or if container has no ports we will check that there is exists container that belongs at least to this test run (or exists container that actually still runs)
             candidates.find(_._2.getState.getRunning).orElse {
@@ -223,7 +225,8 @@ case class ContainerResource[F[_], T](
             }
           }
         }
-        existing <- candidate match {
+
+        candidate match {
           case Some((c, inspection, existingPorts)) =>
             val unverified = DockerContainer[T](
               id = ContainerId(c.getId),
@@ -250,7 +253,7 @@ case class ContainerResource[F[_], T](
             logger.debug(s"No existring container found for ${config.image}, will run...")
             doRun(ports)
         }
-      } yield existing
+      }
     }
   }
 
