@@ -399,6 +399,9 @@ object Izumi {
         ),
         depends = Seq(Projects.fundamentals.language),
         platforms = Targets.cross,
+        settings = Seq(
+          "scalacOptions" in SettingScope.Compile += "-Xlog-implicits"
+        )
       ),
       Artifact(
         name = Projects.fundamentals.fundamentalsJsonCirce,
